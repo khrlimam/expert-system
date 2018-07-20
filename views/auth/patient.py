@@ -1,13 +1,13 @@
 from flask import Blueprint
 
 from models.patients import Patients, PatientSchema
+from views.auth import auth_group
 
-patient_profile = Blueprint('patient_profile', __name__, url_prefix='/admin/patient-profile')
-
+patient = Blueprint('patient', __name__, url_prefix=auth_group('patient'))
 patient_schema = PatientSchema()
 
 
-@patient_profile.route('/<id>')
+@patient.route('/<id>')
 def show(id):
     result = Patients.query.get(id)
     return patient_schema.jsonify(result)
