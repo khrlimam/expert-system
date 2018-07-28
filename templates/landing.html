@@ -1,0 +1,41 @@
+{% extends 'template.html' %}
+{% block css %}
+  <link href="{{ url_for('static', filename='assets/css/demo.css') }}" rel="stylesheet"/>
+{% endblock %}
+{% block body %}
+
+  <body class="login-page sidebar-collapse">
+  <!-- Navbar -->
+  {% block nav %}
+  {% endblock %}
+  <!-- End Navbar -->
+  <div class="page-header" filter-color="orange">
+    <div class="page-header-image"
+         style="background-image:url({{ url_for('static', filename='assets/img/header-health.jpg') }})"></div>
+    <div class="container">
+      {% block content %}
+      {% endblock %}
+    </div>
+    <footer class="footer">
+      <div class="container">
+        <nav>
+          <ul>
+            <li>
+              <a href="{{ url_for('base.help') }}">
+                Bantuan
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <div class="copyright">
+          &copy;
+          <script>
+              document.write(new Date().getFullYear())
+          </script>
+          KI.
+        </div>
+      </div>
+    </footer>
+  </div>
+  </body>
+{% endblock %}

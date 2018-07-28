@@ -9,6 +9,15 @@ class Patients(db.Model):
     tgl_lahir = db.Column(db.Date)
     jenis_kelamin = db.Column(db.CHAR(1))
 
+    @property
+    def jk(self):
+        if self.jenis_kelamin == 'l':
+            return 'Laki-laki'
+        elif self.jenis_kelamin == 'p':
+            return 'Perempuan'
+        else:
+            return 'Tidak jelas'
+
 
 class PatientSchema(ma.ModelSchema):
     class Meta:

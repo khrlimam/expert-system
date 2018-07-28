@@ -1,0 +1,75 @@
+{% extends 'auth/base.html' %}
+{% block container %}
+  <a href="{{ url_for('model.add') }}" class="pull-right btn btn-primary">
+    <i class="now-ui-icons ui-1_simple-add"></i>
+    Tambah Model
+  </a>
+  <h2>
+    Atur Model
+  </h2>
+
+  {% if models.__len__() <= 0 %}
+    {% include 'partials/no-data.html' %}
+  {% endif %}
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-success" role="alert">
+          <div class="container">
+            <div class="alert-icon">
+              <i class="now-ui-icons ui-2_like"></i>
+            </div>
+            <strong>Berhasil!</strong> {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">
+                                <i class="now-ui-icons ui-1_simple-remove"></i>
+                            </span>
+            </button>
+          </div>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  {% if models %}
+    <div class="row">
+      {% for model in models %}
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">{{ model.nama }}</h5>
+              <h6 class="card-subtitle mb-2 text-muted"><i class="now-ui-icons users_circle-08"></i> 50 pasien telah
+                berkonsultasi</h6>
+              <p class="card-text">{{ model.deskripsi|safe }}</p>
+              <a href="{{ url_for('model.add') }}?id={{ model.id }}" class="card-link">Edit</a>
+              <a href="#" model-name="{{ model.nama }}" model-id="{{ model.id }}" onclick="deleteConfirmation(this)"
+                 class="card-link" style="color: red">Delete
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endblock %}
+{% block js %}
+  {{ super() }}
+  <script>
+    function deleteConfirmation(el) {
+      var id = el.getAttribute("model-id");
+      var name = el.getAttribute("model-name");
+      swal({
+        title: "Yakin?",
+        text: `Model: ${name} akan dihapus. Setelah dihapus data tidak bisa dikembalikan lagi`,
+        icon: "warning",
+        buttons: "Ya. Saya yakin",
+        dangerMode: true,
+      })
+        .then((value) => {
+          if (value)
+            location.href = `{{ url_for('model.delete', id="") }}${id}`;
+        });
+    }
+  </script>
+{% endblock %}

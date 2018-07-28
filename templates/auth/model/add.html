@@ -1,0 +1,432 @@
+{% extends 'auth/base.html' %}
+{% block css %}
+  {{ super() }}
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/select2.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/select2-bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='treant/Treant.css') }}" type="text/css"/>
+  <link rel="stylesheet"
+        href="{{ url_for('static', filename='treant/vendor/perfect-scrollbar/perfect-scrollbar.css') }}">
+  <style>
+    .card .card-node {
+      min-height: 1px;
+    }
+
+    .full-width {
+      width: 100%;
+    }
+  </style>
+{% endblock %}
+{% block container %}
+  <h5>Rancangan Model</h5>
+  <div class="row">
+    <div id="tree-model" class="col-sm-12" style="height: 100%"></div>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col-sm-12" id="btn-container">
+      <button class="btn btn-primary pull-right btn-round" id="btn-simpan-model" onclick="storePenyakitGejala()">
+        <i
+            class="now-ui-icons design_app"></i> Simpan Model
+      </button>
+      {% if data.publish %}
+        <button class="btn btn-danger pull-right btn-round" id="btn-publish-model" onclick="publishPenyakitGejala()">
+          <i
+              class="now-ui-icons ui-1_simple-delete"></i> Unpublish Model
+        </button>
+      {% else %}
+        <button class="btn btn-primary pull-right btn-round" id="btn-publish-model" onclick="publishPenyakitGejala()">
+          <i
+              class="now-ui-icons shopping_delivery-fast"></i> Publish Model
+        </button>
+      {% endif %}
+
+    </div>
+  </div>
+
+
+  {#  places for modals#}
+
+  <div class="modal fade" id="editPenyakitGejalaModel" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="editModelPenyakitGejalaForm">
+          <input type="hidden" name="comparator" id="comparator">
+          <div class="modal-header justify-content-center">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+              <i class="now-ui-icons ui-1_simple-remove"></i>
+            </button>
+            <h4 class="title title-up"><i class="fa fa-pencil"></i> Penyakit &amp; Gejala</h4>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="">Penyakit</label>
+              <select name="penyakit" class="edit-penyakit" style="width: 100%"></select>
+            </div>
+            <div class="form-group">
+              <label for="">Gejala</label>
+              <select name="gejala" class="edit-gejala" multiple style="width: 100%"></select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" data-dismiss="modal"
+                    onclick="editModelPenyakitGejala($('#editModelPenyakitGejalaForm'))"
+                    class="btn btn-info btn-simple">
+              Simpan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="addPenyakitGejalaModel" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="addModelPenyakitGejalaForm">
+          <div class="modal-header justify-content-center">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+              <i class="now-ui-icons ui-1_simple-remove"></i>
+            </button>
+            <h4 class="title title-up"><i class="fa fa-plus"></i> Penyakit &amp; Gejala</h4>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="">Penyakit</label>
+              <select name="penyakit" class="penyakit" style="width: 100%">
+                <option value="">f</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="">Gejala</label>
+              <select name="gejala" class="gejala" multiple style="width: 100%"></select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" data-dismiss="modal"
+                    onclick="addModelPenyakitGejala($('#addModelPenyakitGejalaForm'))"
+                    class="btn btn-info btn-simple">
+              Simpan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="editModelName" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="editModelNameForm">
+          <div class="modal-header justify-content-center">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+              <i class="now-ui-icons ui-1_simple-remove"></i>
+            </button>
+            <h4 class="title title-up">Edit nama model</h4>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="">Nama model</label>
+              <input type="text" name="model-name" class="form-control" placeholder="Nama model">
+            </div>
+            <div class="form-group">
+              <label for="">Deskripsi</label>
+              <textarea name="deskripsi" class="form-control" cols="30" rows="3"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" data-dismiss="modal" onclick="editModelName($('#editModelNameForm'))"
+                    class="btn btn-info btn-simple">
+              Simpan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <input type="hidden" id="model-id" value="{{ param or -1 }}">
+  <input type="hidden" id="is-published" value="{{ data.publish|int }}">
+{% endblock %}
+{% block js %}
+  {{ super() }}
+  <script src="{{ url_for('static', filename='assets/js/select2.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='treant/vendor/raphael.js') }}"></script>
+  <script src="{{ url_for('static', filename='treant/Treant.js') }}"></script>
+  <script src="{{ url_for('static', filename='treant/vendor/perfect-scrollbar/perfect-scrollbar.js') }}"></script>
+  <script src="{{ url_for('static', filename="assets/js/lodash.min.js") }}"></script>
+  <script>
+    let penyakit = JSON.parse({{ penyakit|tojson }});
+    let gejala = JSON.parse({{ gejala|tojson }});
+    let initialModel = null;
+    {% if model %}
+      initialModel = JSON.parse({{ model|tojson }});
+    {% endif %}
+    let gejalaGroupById = _.groupBy(gejala, i => i.id);
+    let penyakitGroupById = _.groupBy(penyakit, i => i.id);
+    let btnContainer = $("#btn-container");
+    let penyakitSelect = $('.penyakit');
+    let editPenyakitSelect = $('.edit-penyakit');
+    let gejalaSelect = $('.gejala');
+    let editGejalaSelect = $('.edit-gejala');
+
+    Number.prototype.pad = function (size) {
+      var s = String(this);
+      while (s.length < (size || 2)) {
+        s = "0" + s;
+      }
+      return s;
+    };
+
+    function gejalaData() {
+      return gejala.map((item) => {
+        return {id: item.id, text: "KG-" + (item.id).pad() + " " + item.nama}
+      });
+    }
+
+    $('form').submit(function (e) {
+      e.preventDefault();
+    });
+
+    btnContainer.hide();
+    let showBtnSimpanModel = false;
+
+    $(document).ready(function () {
+      gejalaSelect.select2({
+        data: gejalaData(),
+        placeholder: "Pilih Gejala"
+      });
+
+      penyakitSelect.select2({
+        data: penyakit.map((item, key) => {
+          return {id: item.id, text: item.nama}
+        }),
+        placeholder: "Pilih Penyakit"
+      });
+
+      editGejalaSelect.select2({
+        data: gejalaData()
+      });
+      editPenyakitSelect.select2({
+        data: penyakit.map((item) => {
+          return {id: item.id, text: item.nama}
+        })
+      });
+    });
+
+    let modelName = "Nama model";
+    let modelDeskripsi = "Deskripsi";
+
+    function editModelName(form) {
+      modelName = form.serializeArray()[0].value;
+      modelDeskripsi = form.serializeArray()[1].value;
+      config.nodeStructure.innerHTML = getModelNameHtml(modelName, modelDeskripsi);
+      resetChartWith(config);
+    }
+
+    function addModelPenyakitGejala(form) {
+      data = _.groupBy(form.serializeArray(), item => item.name);
+      var penyakit = data.penyakit;
+      var gejala = data.gejala;
+      let penyakitChild = createPenyakitGejalaChild(penyakit[0], gejala);
+      config.nodeStructure.children.push(penyakitChild);
+      penyakitSelect.val([""]);
+      gejalaSelect.val([""]);
+      penyakitSelect.trigger("change");
+      gejalaSelect.trigger("change");
+      resetChartWith(config);
+    }
+
+    function resetChartWith(config) {
+      my_chart.tree.reset(config, my_chart.tree.id).redraw();
+      if (!showBtnSimpanModel) btnContainer.show();
+    }
+
+    function getPenyakitHtmlStructure(penyakit, comparator) {
+      return "<div class=\"card\">\n" +
+        "          <div class=\"card-body card-node\">\n" +
+        "            <h6 class=\"card-title\">" + penyakit + "</h6>\n" +
+        "            <button onclick=\"modalEditPenyakit(" + comparator + ")\" class=\"btn btn-warning btn-icon btn-sm btn-icon-mini btn-round\">\n" +
+        "              <i class=\"fa fa-pencil\"></i>\n" +
+        "            </button>\n" +
+        "            <button onclick=\"deletePenyakitModel(" + comparator + ")\" class=\"btn btn-danger btn-icon btn-sm btn-icon-mini btn-round\">\n" +
+        "              <i class=\"fa fa-trash\"></i>\n" +
+        "            </button>\n" +
+        "          </div>\n" +
+        "        </div>";
+    }
+
+    function getGejalaHtmlStructure(gejala) {
+      return "<div class=\"card\">\n" +
+        "          <div class=\"card-body card-node\">\n" +
+        "            <h6 align=\"center\" class=\"card-title\">" + gejala + "</h6>\n" +
+        "          </div>\n" +
+        "        </div>";
+    }
+
+    function modalEditPenyakit(comparator) {
+      document.getElementById("comparator").value = comparator;
+      index = getIndex(comparator);
+      child = config.nodeStructure.children[index];
+      editPenyakitSelect.val(child.id);
+      editGejalaSelect.val(child.children.map(item => item.id));
+      editPenyakitSelect.trigger('change');
+      editGejalaSelect.trigger('change');
+      $("#editPenyakitGejalaModel").modal();
+    }
+
+    function editModelPenyakitGejala(form) {
+      data = _.groupBy(form.serializeArray(), item => item.name);
+      comparator = data.comparator[0].value;
+      index = getIndex(comparator);
+      penyakit = data.penyakit;
+      gejala = data.gejala;
+      let penyakitChild = createPenyakitGejalaChild(penyakit[0], gejala);
+      config.nodeStructure.children[index] = penyakitChild;
+      resetChartWith(config);
+    }
+
+    function deletePenyakitModel(comparator) {
+      index = getIndex(comparator);
+      _.pullAt(config.nodeStructure.children, index);
+      resetChartWith(config);
+    }
+
+    function createPenyakitGejalaChild(penyakit, gejala = []) {
+      let comparator = Date.now() + Math.random();
+      let penyakitName = penyakitGroupById[penyakit.value][0].nama;
+      let penyakitObject = {
+        innerHTML: getPenyakitHtmlStructure(penyakitName, comparator),
+        id: penyakit.value,
+        stackChildren: true,
+        comparator: comparator,
+        connectors: {
+          style: {
+            'stroke': '#8080FF',
+            'arrow-end': 'block-wide-long'
+          }
+        },
+        children: []
+      };
+      gejala.forEach((item, key) => {
+        penyakitObject.children[key] = {
+          innerHTML: getGejalaHtmlStructure(gejalaGroupById[item.value][0].nama),
+          id: item.value
+        }
+      });
+      return penyakitObject;
+    }
+
+    function getModelNameHtml(name, deskripsi) {
+      return "<div class=\"card\">\n" +
+        "          <div class=\"card-body card-node\">\n" +
+        "            <h6 class=\"card-title\">" + name + "</h6>\n" +
+        "            <p>" + deskripsi + "</p>" +
+        "            <span data-toggle=\"modal\" data-target=\"#editModelName\"><button data-toggle=\"tooltip\" data-placement=\"bottom\" data-container=\"body\" data-animation=\"true\"\n" +
+        "                    data-original-title=\"Edit nama model\"\n" +
+        "                    class=\"btn-tooltip btn btn-warning btn-sm btn-icon btn-icon-mini btn-round\">\n" +
+        "              <i class=\"fa fa-pencil\"></i>\n" +
+        "            </button></span>\n" +
+        "            <span data-toggle=\"modal\" data-target=\"#addPenyakitGejalaModel\"><button data-toggle=\"tooltip\" data-placement=\"bottom\" data-container=\"body\" data-animation=\"true\"\n" +
+        "                    data-original-title=\"Tambah penyakit\"\n" +
+        "                    class=\"btn-tooltip btn btn-primary btn-sm btn-icon btn-icon-mini btn-round\">\n" +
+        "              <i class=\"fa fa-plus\"></i>\n" +
+        "            </button></span>\n" +
+        "          </div>\n" +
+        "        </div>";
+    }
+
+    function getStructure(initialObject = null) {
+      let object = {
+        innerHTML: getModelNameHtml("Nama Model", "Deskripsi"),
+        HTMLclass: "col-sm-3",
+        connectors: {
+          style: {
+            'stroke': '#bbb',
+            'arrow-end': 'oval-wide-long'
+          }
+        },
+        children: []
+      };
+      if (initialObject != null) {
+        let modelName = initialObject.nama;
+        let modelDeskripsi = initialObject.deskripsi;
+        let existingModel = JSON.parse(initialObject.model);
+        object.innerHTML = getModelNameHtml(modelName, modelDeskripsi);
+        existingModel.forEach(item => {
+          Object.entries(item).forEach(m => {
+            var gejala = m[1].map(id => {
+              return {value: id}
+            });
+            object.children.push(createPenyakitGejalaChild({value: m[0]}, gejala));
+          });
+        });
+      }
+      return object;
+    }
+
+    var config = {
+      chart: {
+        container: "#tree-model",
+        levelSeparation: 45,
+        rootOrientation: "WEST",
+        nodeAlign: "BOTTOM",
+        connectors: {
+          type: "step",
+          style: {
+            "stroke-width": 2
+          }
+        },
+        node: {
+          HTMLclass: "col-sm-2"
+        }
+      },
+      nodeStructure: getStructure(initialModel)
+    };
+
+    var my_chart = new Treant(config);
+    let model = [];
+
+    function getIndex(comparator) {
+      arrayObjects = config.nodeStructure.children;
+      for (i = 0; i < arrayObjects.length; i++) {
+        if (arrayObjects[i].comparator == comparator) return i;
+      }
+    }
+
+    function publishPenyakitGejala() {
+      var isPublished = document.getElementById("is-published").value;
+      if (isPublished == 1) document.getElementById("is-published").value = 0;
+      else document.getElementById("is-published").value = 1;
+      storePenyakitGejala();
+    }
+
+    function storePenyakitGejala() {
+      var modelId = document.getElementById("model-id").value;
+      var publish = document.getElementById("is-published").value;
+      console.log(modelId);
+      var model = []
+      config.nodeStructure.children.forEach((penyakit) => {
+        item = {};
+        item[penyakit.id] = penyakit.children.map(gejala => gejala.id);
+        model.push(item);
+      });
+      var ajaxData = {
+        url: "{{ url_for('model.add') }}",
+        type: 'POST',
+        data: {model: JSON.stringify(model), nama: modelName, deskripsi: modelDeskripsi, publish: publish},
+        success: (r) => console.log(r),
+        error: (x, h, r) => console.log(h)
+      };
+      if (modelId > 0) {
+        ajaxData.type = 'PATCH';
+        ajaxData.data['id'] = modelId;
+        console.log(ajaxData);
+      }
+      console.log(ajaxData);
+      $.ajax(ajaxData);
+    }
+
+  </script>
+{% endblock %}

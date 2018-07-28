@@ -1,0 +1,10 @@
+{% extends 'templatewithnavheader.html' %}
+{% block nav %}
+  {% include 'menus/auth.html' %}
+{% endblock %}
+{% block container %}
+  <h1>Auth!</h1>
+{% endblock %}
+{% block js %}
+  <script src="{{ url_for('static', filename='assets/js/sweetalert.min.js') }}"></script>
+{% endblock %}
