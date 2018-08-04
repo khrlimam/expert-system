@@ -2,7 +2,7 @@ import os
 
 DEBUG = True
 
-SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "")
+SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", 'mysql://root:password@localhost/tht_expert')
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 THREADS_PER_PAGE = 2
