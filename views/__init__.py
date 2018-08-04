@@ -1,7 +1,13 @@
 from flask import Blueprint, render_template, request, jsonify
+
 from models.rule_model import RuleModel
 
 base = Blueprint('base', __name__)
+
+
+@base.route('/try')
+def try_():
+    return 'Mantap!'
 
 
 @base.route('/')
