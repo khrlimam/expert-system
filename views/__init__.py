@@ -1,11 +1,13 @@
 from flask import Blueprint, render_template, request, jsonify
+from models.rule_model import RuleModel
 
 base = Blueprint('base', __name__)
 
 
 @base.route('/')
 def index():
-    return render_template('index.html')
+    r = RuleModel.query.filter_by(publish=True).all()
+    return render_template('index.html', models=r)
 
 
 @base.route('/login', methods=['GET', 'POST'])

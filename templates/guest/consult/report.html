@@ -1,0 +1,10 @@
+{% if not result %}
+  {% include 'partials/no-data.html' %}
+{% else %}
+  <h1>Laporan</h1>
+  <div class="row">
+    <div class="col-sm-12">
+      {{ result }}
+    </div>
+  </div>
+{% endif %}

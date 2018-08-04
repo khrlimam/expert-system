@@ -1,15 +1,20 @@
 from flask import Blueprint
+from flask import render_template
 
+from models.gejala import Gejala
+from models.penyakit import Penyakit
 from views.auth import auth_group
 
-masterdata = Blueprint('master', __name__, url_prefix=auth_group('master'))
+masterdata = Blueprint('master', __name__, url_prefix=auth_group('data'))
 
 
 @masterdata.route('penyakit')
 def penyakit():
-    pass
+    models = Penyakit.query.all()
+    return render_template('auth/penyakit/index.html', models=models)
 
 
 @masterdata.route('gejala')
 def gejala():
-    pass
+    models = Gejala.query.all()
+    return render_template('auth/gejala/index.html', models=models)

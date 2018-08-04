@@ -1,0 +1,18 @@
+<h4 align="center">Silahkan pilih keluhan gejala yang anda alami</h4>
+
+<form action="{{ url_for('consult.process') }}" method="POST">
+  <input type="hidden" value="{{ step }}" name="step">
+  <div class="row">
+    <div class="col-sm-6 mx-auto">
+      <select name="gejala[]" class="form-control" multiple style="width: 100%">
+        <option value=""></option>
+        {% for g in gejala %}
+          <option value="{{ g.id }}" {{ ('', 'checked')[g.id in data] }} >{{ g.nama }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-sm-12">
+      <button type="submit" class="btn btn-primary btn-round pull-right">Selanjutnya</button>
+    </div>
+  </div>
+</form>

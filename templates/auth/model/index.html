@@ -39,12 +39,16 @@
           <div class="card">
             <div class="card-body">
               <h5 class="card-title">{{ model.nama }}</h5>
-              <h6 class="card-subtitle mb-2 text-muted"><i class="now-ui-icons users_circle-08"></i> 50 pasien telah
-                berkonsultasi</h6>
+              <h6 class="card-subtitle mb-2 text-muted"><i
+                  class="now-ui-icons shopping_delivery-fast"></i> {{ ("Belum dipublish", "Telah dipublish")[model.publish] }}
+              </h6>
               <p class="card-text">{{ model.deskripsi|safe }}</p>
               <a href="{{ url_for('model.add') }}?id={{ model.id }}" class="card-link">Edit</a>
               <a href="#" model-name="{{ model.nama }}" model-id="{{ model.id }}" onclick="deleteConfirmation(this)"
-                 class="card-link" style="color: red">Delete
+                 class="card-link" style="color: red">Hapus
+              </a>
+              <a href="{{ url_for('model.toggle_publish', id=model.id) }}" class="card-link"
+                 style="color: grey">{{ ("Publish", "Unpublish")[model.publish] }}
               </a>
             </div>
           </div>

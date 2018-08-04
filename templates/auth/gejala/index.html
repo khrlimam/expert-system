@@ -1,0 +1,92 @@
+{% extends 'auth/base.html' %}
+{% block container %}
+  <a href="#" data-toggle="modal" data-target="#gejalaModal" class="pull-right btn btn-primary">
+    <i class="now-ui-icons ui-1_simple-add"></i>
+    Tambah Gejala
+  </a>
+  <h2>
+    Data Gejala
+  </h2>
+
+  {% if models.__len__() <= 0 %}
+    {% include 'partials/no-data.html' %}
+  {% endif %}
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-success" role="alert">
+          <div class="container">
+            <div class="alert-icon">
+              <i class="now-ui-icons ui-2_like"></i>
+            </div>
+            <strong>Berhasil!</strong> {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">
+                                <i class="now-ui-icons ui-1_simple-remove"></i>
+                            </span>
+            </button>
+          </div>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  {% if models %}
+    <table class="table table-striped">
+      <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Penyakit</th>
+        <th>?</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for model in models %}
+        <tr>
+          <td>{{ model.kode_gejala }}</td>
+          <td>{{ model.nama }}</td>
+          <td>
+            <button class="btn btn-sm btn-primary"><i class="fa fa-pencil"></i></button>
+            <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
+          </td>
+        </tr>
+      {% endfor %}
+
+      </tbody>
+    </table>
+  {% endif %}
+
+  {#  modal#}
+  <div class="modal fade" id="gejalaModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="gejalaForm">
+          <div class="modal-header justify-content-center">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+              <i class="now-ui-icons ui-1_simple-remove"></i>
+            </button>
+            <h4 class="title title-up">Form Gejala</h4>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="">Nama Gejala</label>
+              <input type="text" name="name" class="form-control"
+                     placeholder="Nama Gejala">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" data-dismiss="modal" onclick="storeData($('#gejalaForm'))"
+                    class="btn btn-info btn-simple">
+              Simpan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+{% block js %}
+  {{ super() }}
+{% endblock %}

@@ -1,5 +1,9 @@
 intensity = {
-    "ringan": (10, 60),
-    "sedang": (40, 80),
-    "berat": (60, 100),
+    "ringan": 30,
+    "sedang": 60,
+    "berat": 90,
+}
+
+category = {
+    ""
 }

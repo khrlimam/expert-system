@@ -1,0 +1,62 @@
+{% extends 'guest/base.html' %}
+{% block css %}
+  {{ super() }}
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/select2.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/select2-bootstrap.min.css') }}">
+{% endblock %}
+{% block container %}
+  <ul class="nav nav-pills nav-pills-primary justify-content-center" role="tablist">
+    <li class="nav-item" data-toggle="tooltip" data-placement="bottom" title="Data tentang pasien">
+      <a class="nav-link {{ ('', 'active')[step == 'profile'] }}"
+         href="{{ url_for('consult.index') }}?step=profile">
+        <i class="now-ui-icons users_single-02"></i>
+      </a>
+    </li>
+    <li class="nav-item" data-toggle="tooltip" data-placement="bottom" title="Pilih gejala">
+      <a class="nav-link {{ ('', 'active')[step == 'gejala'] }}"
+         href="{{ url_for('consult.index') }}?step=gejala">
+        <i class="fa fa-stethoscope"></i>
+      </a>
+    </li>
+    <li class="nav-item" data-toggle="tooltip" data-placement="bottom" title="Intensitas setiap gejala">
+      <a class="nav-link {{ ('', 'active')[step == 'intensitas'] }}"
+         href="{{ url_for('consult.index') }}?step=intensitas">
+        <i class="fa fa-thermometer-1"></i>
+      </a>
+    </li>
+    <li class="nav-item" data-toggle="tooltip" data-placement="bottom" title="Laporan hasil diagnosa">
+      <a class="nav-link {{ ('', 'active')[step == 'laporan'] }}"
+         href="{{ url_for('consult.index') }}?step=laporan">
+        <i class="fa fa-bar-chart"></i>
+      </a>
+    </li>
+  </ul>
+  <hr/>
+  {% if step == 'profile' %}
+    {% include 'guest/consult/patient-profile.html' %}
+  {% endif %}
+  {% if step == 'gejala' %}
+    {% include 'guest/consult/pilih-gejala.html' %}
+  {% endif %}
+  {% if step == 'intensitas' %}
+    {% include 'guest/consult/pilih-intensitas.html' %}
+  {% endif %}
+  {% if step == 'laporan' %}
+    {% include 'guest/consult/report.html' %}
+  {% endif %}
+{% endblock %}
+{% block js %}
+  {{ super() }}
+  <script src="{{ url_for('static', filename="assets/js/plugins/bootstrap-switch.js") }}"></script>
+  <script src="{{ url_for('static', filename='assets/js/select2.min.js') }}"></script>
+  <script>
+    let selectElement = $('select');
+    $(document).ready(() => selectElement.select2({placeholder: 'Pilih Gejala'}));
+
+
+    {% if step == 'gejala' %}
+      selectElement.val({{ data }});
+      selectElement.trigger('change');
+    {% endif %}
+  </script>
+{% endblock %}

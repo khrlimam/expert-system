@@ -1,0 +1,48 @@
+{% if not gejala_s %}
+  {% include 'partials/no-data.html' %}
+{% else %}
+  <h4 align="center">Pilih intensitas gejala yang anda alami</h4>
+  <form action="{{ url_for('consult.process') }}" method="POST">
+    <div class="row">
+      <div class="col-sm-5 mx-auto">
+        <input type="hidden" name="step" value="{{ step }}">
+        {% for g in gejala %}
+          <div class="form-group">
+            <label for="">Intensitas untuk gejala {{ g.nama }}</label>
+            <div class="radio">
+              <input type="radio" {{ ('','checked')[data['%s' % g.id] == 'ringan'] }}
+                     name="{{ g.id }}" id="radio1-{{ g.id }}"
+                     value="ringan">
+              <label for="radio1-{{ g.id }}">
+                Ringan
+              </label>
+            </div>
+
+            <div class="radio">
+              <input type="radio" {{ ('','checked')[data['%s' % g.id] == 'sedang'] }}
+                     name="{{ g.id }}" id="radio2-{{ g.id }}"
+                     value="sedang">
+              <label for="radio2-{{ g.id }}">
+                Sedang
+              </label>
+            </div>
+
+            <div class="radio">
+              <input type="radio" {{ ('','checked')[data['%s' % g.id] == 'berat'] }}
+                     name="{{ g.id }}" id="radio3-{{ g.id }}"
+                     value="berat">
+              <label for="radio3-{{ g.id }}">
+                Berat
+              </label>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-12">
+        <button type="submit" class="btn btn-round btn-primary pull-right">Selanjutnya</button>
+      </div>
+    </div>
+  </form>
+{% endif %}

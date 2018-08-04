@@ -30,13 +30,11 @@
       </button>
       {% if data.publish %}
         <button class="btn btn-danger pull-right btn-round" id="btn-publish-model" onclick="publishPenyakitGejala()">
-          <i
-              class="now-ui-icons ui-1_simple-delete"></i> Unpublish Model
+          <i class="now-ui-icons ui-1_simple-delete"></i> Unpublish Model
         </button>
       {% else %}
         <button class="btn btn-primary pull-right btn-round" id="btn-publish-model" onclick="publishPenyakitGejala()">
-          <i
-              class="now-ui-icons shopping_delivery-fast"></i> Publish Model
+          <i class="now-ui-icons shopping_delivery-fast"></i> Publish Model
         </button>
       {% endif %}
 
@@ -129,11 +127,12 @@
           <div class="modal-body">
             <div class="form-group">
               <label for="">Nama model</label>
-              <input type="text" name="model-name" class="form-control" placeholder="Nama model">
+              <input type="text" name="model-name" class="form-control" value="{{ data.nama or '' }}"
+                     placeholder="Nama model">
             </div>
             <div class="form-group">
               <label for="">Deskripsi</label>
-              <textarea name="deskripsi" class="form-control" cols="30" rows="3"></textarea>
+              <textarea name="deskripsi" class="form-control" cols="30" rows="3">{{ data.deskripsi or '' }}</textarea>
             </div>
           </div>
           <div class="modal-footer">
@@ -146,7 +145,7 @@
       </div>
     </div>
   </div>
-  <input type="hidden" id="model-id" value="{{ param or -1 }}">
+  <input type="hidden" id="model-id" value="{{ data.id or -1 }}">
   <input type="hidden" id="is-published" value="{{ data.publish|int }}">
 {% endblock %}
 {% block js %}
@@ -178,6 +177,18 @@
       }
       return s;
     };
+
+    function togglePublishButton(isPublished) {
+      console.log(isPublished);
+      var btn = document.getElementById("btn-publish-model");
+      if (isPublished) {
+        btn.className = "btn btn-danger pull-right btn-round";
+        $("#btn-publish-model").html('<i class="now-ui-icons ui-1_simple-delete"></i> Unpublish Model');
+      } else {
+        btn.className = "btn btn-primary pull-right btn-round";
+        $("#btn-publish-model").html('<i class="now-ui-icons shopping_delivery-fast"></i> Publish Model');
+      }
+    }
 
     function gejalaData() {
       return gejala.map((item) => {
@@ -405,8 +416,7 @@
     function storePenyakitGejala() {
       var modelId = document.getElementById("model-id").value;
       var publish = document.getElementById("is-published").value;
-      console.log(modelId);
-      var model = []
+      var model = [];
       config.nodeStructure.children.forEach((penyakit) => {
         item = {};
         item[penyakit.id] = penyakit.children.map(gejala => gejala.id);
@@ -415,16 +425,22 @@
       var ajaxData = {
         url: "{{ url_for('model.add') }}",
         type: 'POST',
-        data: {model: JSON.stringify(model), nama: modelName, deskripsi: modelDeskripsi, publish: publish},
-        success: (r) => console.log(r),
-        error: (x, h, r) => console.log(h)
+        data: {model: JSON.stringify(model), nama: modelName, deskripsi: modelDeskripsi, publish: publish, id: modelId},
+        success: (r) => {
+          document.getElementById("model-id").value = r.result.id;
+          swal("Berhasil!", "Data telah disimpan!", "success");
+          togglePublishButton(r.result.publish);
+        },
+        error: (x, h, r) => swal({
+          title: 'Error!',
+          text: x.responseText,
+          dangerMode: true,
+          icon: 'error'
+        })
       };
       if (modelId > 0) {
         ajaxData.type = 'PATCH';
-        ajaxData.data['id'] = modelId;
-        console.log(ajaxData);
       }
-      console.log(ajaxData);
       $.ajax(ajaxData);
     }
 

@@ -32,9 +32,10 @@
     <h3>Sistem pakar cerdas, pilihan asisten konsultasi Anda!</h3>
     <h3 style="text-transform: uppercase">Konsultasi</h3>
     <div class="footer text-center">
-      <a class="btn btn-primary btn-round btn-lg">THT</a>
-      <a class="btn btn-primary btn-round btn-lg">THT</a>
-      <a class="btn btn-primary btn-round btn-lg">THT</a>
+      {% for model in models %}
+        <a href="{{ url_for('consult.for_', id=model.id) }}?step=profile"
+           class="btn btn-primary btn-round btn-lg">{{ model.nama }}</a>
+      {% endfor %}
     </div>
   </div>
 {% endblock %}

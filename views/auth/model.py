@@ -24,24 +24,25 @@ def add():
         gejala = gejala_schema.dumps(Gejala.query.all())
         param = request.args.get("id")
         model = None
-        model_data = {'publish': False}
+        model_data = {'publish': False, 'id': -1}
         if param:
             model_data = RuleModel.query.get_or_404(param)
             model = rule_model_schema.dumps(model_data).data
         return render_template('auth/model/add.html', penyakit=penyakit.data, gejala=gejala.data, model=model,
-                               param=param, data=model_data)
-    rule_model = RuleModel()
-    if request.method == 'PATCH':
-        rule_model = RuleModel.query.get(request.form.get('id'))
+                               data=model_data)
+    rule_model = RuleModel.query.get(request.form.get('id'))
+    tmp = rule_model
+    if tmp is None:
+        rule_model = RuleModel()
     rule_model.publish = bool(int(request.form.get('publish')))
     rule_model.nama = request.form.get('nama')
     rule_model.deskripsi = request.form.get('deskripsi')
     rule_model.model_ = json.loads(request.form.get('model'))
     try:
-        if request.method == 'POST':
+        if request.method == 'POST' and tmp is None:
             db.session.add(rule_model)
-        result = db.session.commit()
-        return jsonify(message='Model telah disimpan', result=result)
+        db.session.commit()
+        return jsonify(message='Model telah disimpan', result=json.loads(rule_model_schema.dumps(rule_model).data))
     except Exception as e:
         abort(make_response(jsonify(message='Ada kesalahan! %s' % e), 400))
 
@@ -57,3 +58,15 @@ def delete(id):
         return redirect(url_for('model.index'))
     except Exception as e:
         abort(make_response(jsonify(message='Ada kesalahan! %s' % e), 400))
+
+
+@model.route('toggle-publish/<id>')
+def toggle_publish(id):
+    data = RuleModel.query.get_or_404(id)
+    pub = data.publish
+    if pub:
+        data.publish = 0
+    else:
+        data.publish = 1
+    db.session.commit()
+    return redirect(url_for('model.index'))
