@@ -1,1 +1,1 @@
-web: gunicorn boot:app
+web: gunicorn server:app
