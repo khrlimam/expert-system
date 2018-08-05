@@ -47,8 +47,59 @@
 {% endblock %}
 {% block js %}
   {{ super() }}
+  <script src="{{ url_for('static', filename='assets/chart.bundle.min.js') }}"></script>
   <script src="{{ url_for('static', filename="assets/js/plugins/bootstrap-switch.js") }}"></script>
   <script src="{{ url_for('static', filename='assets/js/select2.min.js') }}"></script>
+  <script src="{{ url_for('static', filename="assets/js/lodash.min.js") }}"></script>
+  <script>
+    {% if step == 'laporan' %}
+      let penyakit = JSON.parse({{ result.penyakits|tojson }});
+      let probability = {{ result.probability|tojson }};
+      let pr = {{ result.pr|tojson }};
+      let groupPrByPenyakit = _.groupBy(pr, item => item[0]);
+      let penyakitGroupById = _.groupBy(penyakit, i => i.id);
+      let penyakitIds = Object.entries(_.groupBy(probability, i => Object.entries(i)[0][0])).map(item => item[0]);
+      let labels = penyakitIds.map(item => penyakitGroupById[item][0].nama);
+      let data = penyakitIds.map(item => groupPrByPenyakit[item][0][1]);
+      var ctx = document.getElementById("myChart").getContext('2d');
+      var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: '# Nilai probabilitas penyakit',
+            data: data,
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(75, 192, 192, 0.2)',
+              'rgba(153, 102, 255, 0.2)',
+              'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+              'rgba(255,99,132,1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(153, 102, 255, 1)',
+              'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          scales: {
+            yAxes: [{
+              ticks: {
+                beginAtZero: true
+              }
+            }]
+          }
+        }
+      });
+    {% endif %}
+  </script>
   <script>
     let selectElement = $('select');
     $(document).ready(() => selectElement.select2({placeholder: 'Pilih Gejala'}));
