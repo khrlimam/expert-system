@@ -2,8 +2,10 @@ import itertools
 
 from flask import Blueprint, render_template, request, session, redirect, url_for
 
+from boot import db
+from calculator.probability_counter import ProbabilityCounter
 from models.gejala import Gejala
-from models.intensity import intensity, category
+from models.patients import Patients
 from models.penyakit import Penyakit, schema as penyakit_schema
 from models.rule_model import RuleModel
 
@@ -30,21 +32,22 @@ def index():
 
     if step == 'laporan':
         try:
-            r = report()
-            p = Penyakit.query
-            report_ = r[0]
-            prob = r[1]
-            pr = [(list(x.keys())[0], list(x.values())[0]) for x in prob]
-            penyakit_id = list(report_[0].keys())[0]
-            kategori = list(report_[0].values())[0][1]
-            penyakit = p.get(penyakit_id)
+            report_ = report()
+            penyakit_query = Penyakit.query
+            conclusion = report_.conclusions()
+            probability = report_.probability()
+            map_probability_to_array = [(list(x.keys())[0], list(x.values())[0]) for x in probability]
+            penyakits_with_possibility = list(conclusion[0].keys())[0]
+            kategori = list(conclusion[0].values())[0][1]
+            penyakit = penyakit_query.get(penyakits_with_possibility)
             all_penyakit = penyakit_schema.dumps(Penyakit.query.all()).data
             profile = session['profile']
             intensitas_copy = session['intensitas'].copy()
             intensitas_copy.pop('step')
             gejala_user = [(Gejala.query.get(x).nama, intensitas_copy[x]) for x in intensitas_copy.keys()]
-            result = {'penyakit': penyakit.nama, 'kategori': kategori, 'probability': prob, 'penyakits': all_penyakit,
-                      'pr': pr, 'profile': profile, 'gejala_user': gejala_user}
+            result = {'penyakit': penyakit.nama, 'kategori': kategori, 'probability': probability,
+                      'penyakits': all_penyakit,
+                      'pr': map_probability_to_array, 'profile': profile, 'gejala_user': gejala_user}
         except Exception:
             result = {}
 
@@ -60,8 +63,9 @@ def for_(id):
 
 @consult.route('process', methods=['POST'])
 def process():
-    step = request.form.get('step')
-    session[step] = request.form
+    data = request.form
+    step = data.get('step')
+    session[step] = data
     if step == 'gejala':
         session[step] = list(map(int, request.form.getlist('gejala[]')))
     return redirect('%s?step=%s' % (url_for('consult.index'), steps.get(step)))
@@ -69,27 +73,24 @@ def process():
 
 @consult.route('/done')
 def done():
+    data = session.get('profile')
+    model_id = session.get('model-id')
+    intensity_ = session.get('intensitas')
+    intensity_.pop('step')
+    data.update({'history': {'model': model_id, 'intensity': intensity_}})
+    db.session.add(Patients(data))
+    db.session.commit()
     for step in steps.keys():
         session.pop(step, None)
+    session.pop('model-id', None)
     return redirect(url_for('base.index'))
 
 
 def report():
-    r = RuleModel.query.get_or_404(session['model-id'])
-    a = session.get('intensitas')
-    a = {x: intensity.get(a.get(x), 0) for x in a.keys()}
-    user_gejala = set(a.keys())
-    thtmodel = r.model_
-    user_penyakit = list(filter(lambda x: len(set(list(x.values())[0]).intersection(user_gejala)) > 0, thtmodel))
-    user_penyakit_weighted = [{list(x.keys())[0]: [a.get(y, 0) for y in list(x.values())[0]]} for x in user_penyakit]
-    prob = [{list(x.keys())[0]: sum(list(x.values())[0]) / len(list(x.values())[0])} for x in user_penyakit_weighted]
-    sort_desc = sorted(prob, key=lambda item: -list(item.values())[0])
-    conclusions = [{list(y.keys())[0]:
-                        (list(y.values())[0],
-                         list(filter(lambda x:
-                                     isbetween(list(y.values())[0], x[1]),
-                                     category))[0][0])} for y in sort_desc]
-    return (conclusions, prob)
+    model_by_rule = RuleModel.query.get_or_404(session['model-id'])
+    gejala_intensity = session.get('intensitas')
+    selected_model = model_by_rule.model_
+    return ProbabilityCounter(gejala_intensity, selected_model)
 
 
 steps = {
@@ -97,7 +98,3 @@ steps = {
     'gejala': 'intensitas',
     'intensitas': 'laporan'
 }
-
-
-def isbetween(x, tupple):
-    return tupple[0] <= x <= tupple[1]
