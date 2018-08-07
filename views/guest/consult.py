@@ -29,21 +29,24 @@ def index():
     result = {}
 
     if step == 'laporan':
-        r = report()
-        p = Penyakit.query
-        report_ = r[0]
-        prob = r[1]
-        pr = [(list(x.keys())[0], list(x.values())[0]) for x in prob]
-        penyakit_id = list(report_[0].keys())[0]
-        kategori = list(report_[0].values())[0][1]
-        penyakit = p.get(penyakit_id)
-        all_penyakit = penyakit_schema.dumps(Penyakit.query.all()).data
-        profile = session['profile']
-        intensitas_copy = session['intensitas'].copy()
-        intensitas_copy.pop('step')
-        gejala_user = [(Gejala.query.get(x).nama, intensitas_copy[x]) for x in intensitas_copy.keys()]
-        result = {'penyakit': penyakit.nama, 'kategori': kategori, 'probability': prob, 'penyakits': all_penyakit,
-                  'pr': pr, 'profile': profile, 'gejala_user': gejala_user}
+        try:
+            r = report()
+            p = Penyakit.query
+            report_ = r[0]
+            prob = r[1]
+            pr = [(list(x.keys())[0], list(x.values())[0]) for x in prob]
+            penyakit_id = list(report_[0].keys())[0]
+            kategori = list(report_[0].values())[0][1]
+            penyakit = p.get(penyakit_id)
+            all_penyakit = penyakit_schema.dumps(Penyakit.query.all()).data
+            profile = session['profile']
+            intensitas_copy = session['intensitas'].copy()
+            intensitas_copy.pop('step')
+            gejala_user = [(Gejala.query.get(x).nama, intensitas_copy[x]) for x in intensitas_copy.keys()]
+            result = {'penyakit': penyakit.nama, 'kategori': kategori, 'probability': prob, 'penyakits': all_penyakit,
+                      'pr': pr, 'profile': profile, 'gejala_user': gejala_user}
+        except Exception:
+            result = {}
 
     return render_template('guest/consult/consult.html', step=step, model=model, data=step_data, gejala=gejala,
                            gejala_s=gejala_s, result=result)
@@ -64,9 +67,16 @@ def process():
     return redirect('%s?step=%s' % (url_for('consult.index'), steps.get(step)))
 
 
+@consult.route('/done')
+def done():
+    for step in steps.keys():
+        session.pop(step, None)
+    return redirect(url_for('base.index'))
+
+
 def report():
     r = RuleModel.query.get_or_404(session['model-id'])
-    a = session['intensitas']
+    a = session.get('intensitas')
     a = {x: intensity.get(a.get(x), 0) for x in a.keys()}
     user_gejala = set(a.keys())
     thtmodel = r.model_

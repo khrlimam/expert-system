@@ -1,5 +1,8 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, abort, session
+from werkzeug.wsgi import peek_path_info
 
+import config
+from models.login import Login
 from models.rule_model import RuleModel
 
 base = Blueprint('base', __name__)
@@ -7,7 +10,7 @@ base = Blueprint('base', __name__)
 
 @base.route('/try')
 def try_():
-    return 'Mantap!'
+    return peek_path_info(request.environ)
 
 
 @base.route('/')
@@ -25,8 +28,17 @@ def login():
 
 @base.route('/help')
 def help():
-    return 'Help'
+    return request.url
 
 
 def process_login(*args, **kwargs):
-    return jsonify(login='Gagal', username=request.form.get('email'), password=request.form.get('password'))
+    username = request.form.get('username')
+    password = request.form.get('password')
+
+    user = Login.query.get_or_404(username)
+    isAuth = user.check_user(password)
+    if isAuth:
+        session[config.SESSION_USER_ID] = username
+        return redirect(url_for('auth.index'))
+    else:
+        abort(status=404)

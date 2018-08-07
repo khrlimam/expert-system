@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: ab71c97f18f5
+Revision ID: 550ffd99b8b1
 Revises: 
-Create Date: 2018-07-28 21:09:33.574154
+Create Date: 2018-08-05 15:26:32.163950
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'ab71c97f18f5'
+revision = '550ffd99b8b1'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -23,6 +23,11 @@ def upgrade():
     sa.Column('nama', sa.String(length=100), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('login',
+    sa.Column('username', sa.String(length=50), nullable=False),
+    sa.Column('password', sa.String(length=93), nullable=True),
+    sa.PrimaryKeyConstraint('username')
+    )
     op.create_table('patients',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('no_identitas', sa.String(length=100), nullable=True),
@@ -30,6 +35,7 @@ def upgrade():
     sa.Column('alamat', sa.String(length=100), nullable=True),
     sa.Column('tgl_lahir', sa.Date(), nullable=True),
     sa.Column('jenis_kelamin', sa.CHAR(length=1), nullable=True),
+    sa.Column('history', sa.String(length=255), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('penyakit',
@@ -53,5 +59,6 @@ def downgrade():
     op.drop_table('rule_model')
     op.drop_table('penyakit')
     op.drop_table('patients')
+    op.drop_table('login')
     op.drop_table('gejala')
     # ### end Alembic commands ###

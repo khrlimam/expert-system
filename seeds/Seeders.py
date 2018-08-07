@@ -1,5 +1,6 @@
 from boot import db
 from models.gejala import Gejala
+from models.login import Login
 from models.penyakit import Penyakit
 from seeds.Seeder import Seeder
 
@@ -76,3 +77,12 @@ class GejalaSeeder(Seeder):
             g.nama_ = gejala
             db.session.add(g)
             db.session.commit()
+
+
+class DefaultUser(Seeder):
+    def run(self):
+        user = Login()
+        user.username = 'admin'
+        user.password_ = 'secret'
+        db.session.add(user)
+        db.session.commit()

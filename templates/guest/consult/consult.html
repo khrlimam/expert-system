@@ -52,7 +52,7 @@
   <script src="{{ url_for('static', filename='assets/js/select2.min.js') }}"></script>
   <script src="{{ url_for('static', filename="assets/js/lodash.min.js") }}"></script>
   <script>
-    {% if step == 'laporan' %}
+    {% if step == 'laporan' and result %}
       let penyakit = JSON.parse({{ result.penyakits|tojson }});
       let probability = {{ result.probability|tojson }};
       let pr = {{ result.pr|tojson }};

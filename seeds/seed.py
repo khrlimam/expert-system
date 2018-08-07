@@ -1,7 +1,6 @@
-from seeds.Seeders import GejalaSeeder
-from seeds.Seeders import PenyakitSeeder
+from seeds.Seeders import GejalaSeeder, PenyakitSeeder, DefaultUser
 
-seeders = [PenyakitSeeder(), GejalaSeeder()]
+seeders = [PenyakitSeeder(), GejalaSeeder(), DefaultUser()]
 
 
 def start():

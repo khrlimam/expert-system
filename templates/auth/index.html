@@ -4,15 +4,11 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/datatables.min.css') }}">
 {% endblock %}
 {% block container %}
-  <a href="#" data-toggle="modal" data-target="#gejalaModal" class="pull-right btn btn-primary">
-    <i class="now-ui-icons ui-1_simple-add"></i>
-    Tambah Gejala
-  </a>
-  <h2>
-    Data Gejala
-  </h2>
+  <h4>
+    Daftar pasien yang telah berkonsultasi
+  </h4>
 
-  {% if models.__len__() <= 0 %}
+  {% if patients.__len__() <= 0 %}
     {% include 'partials/no-data.html' %}
   {% endif %}
 
@@ -36,7 +32,7 @@
     {% endif %}
   {% endwith %}
 
-  {% if models %}
+  {% if patients %}
     <table class="table-inverse table table-striped">
       <thead class="thead-inverse">
       <tr>
@@ -46,10 +42,10 @@
       </tr>
       </thead>
       <tbody>
-      {% for model in models %}
+      {% for patient in patients %}
         <tr>
-          <td>{{ model.kode_gejala }}</td>
-          <td>{{ model.nama }}</td>
+          <td>{{ patient.id }}</td>
+          <td>{{ patient.nama }}</td>
           <td>
             <div class="btn-group" role="group" aria-label="Basic example">
               <button class="btn btn-sm btn-primary"><i class="fa fa-pencil"></i></button>

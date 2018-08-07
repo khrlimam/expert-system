@@ -6,18 +6,20 @@ from boot import db
 from models.gejala import Gejala, gejala_schema
 from models.penyakit import Penyakit, schema as penyakit_schema
 from models.rule_model import RuleModel, rule_model_schema
-from views.auth import auth_group
+from views.auth import auth_group, login_required
 
 model = Blueprint('model', __name__, url_prefix=auth_group('model'))
 
 
 @model.route('/')
+@login_required
 def index():
     models = RuleModel.query.all()
     return render_template('auth/model/index.html', models=models)
 
 
 @model.route('design', methods=['GET', 'POST', 'PATCH'])
+@login_required
 def add():
     if request.method == 'GET':
         penyakit = penyakit_schema.dumps(Penyakit.query.all())
@@ -48,6 +50,7 @@ def add():
 
 
 @model.route('delete/<id>')
+@login_required
 def delete(id):
     data = RuleModel.query.get_or_404(id)
     name = data.nama
@@ -61,6 +64,7 @@ def delete(id):
 
 
 @model.route('toggle-publish/<id>')
+@login_required
 def toggle_publish(id):
     data = RuleModel.query.get_or_404(id)
     pub = data.publish
