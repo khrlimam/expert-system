@@ -46,7 +46,7 @@
       {% for patient in patients %}
         <tr>
           <td>{{ loop.index }}</td>
-          <td>{{ patient.nama }}</td>
+          <td>{{ patient.nama|title }}</td>
           <td>
             <ol>
               {% for gejala in patient.named_intensity_gejala %}
