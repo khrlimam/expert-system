@@ -1,6 +1,6 @@
-from seeds.Seeders import GejalaSeeder, PenyakitSeeder, DefaultUser
+from seeds.Seeders import GejalaSeeder, PenyakitSeeder, DefaultUser, RuleModelSeeder
 
-seeders = [PenyakitSeeder(), GejalaSeeder(), DefaultUser()]
+seeders = [PenyakitSeeder(), GejalaSeeder(), DefaultUser(), RuleModelSeeder()]
 
 
 def start():

@@ -1,7 +1,10 @@
+import json
+
 from boot import db
 from models.gejala import Gejala
 from models.login import Login
 from models.penyakit import Penyakit
+from models.rule_model import RuleModel
 from seeds.Seeder import Seeder
 
 penyakits = [
@@ -85,4 +88,16 @@ class DefaultUser(Seeder):
         user.username = 'admin'
         user.password_ = 'secret'
         db.session.add(user)
+        db.session.commit()
+
+
+class RuleModelSeeder(Seeder):
+    def run(self):
+        rule_model = RuleModel()
+        rule_model.nama = 'THT'
+        rule_model.deskripsi = 'Model THT untuk pasien THT'
+        with open('rules.json', 'r') as f:
+            r = json.loads(f.read())
+            rule_model.model_ = r
+        db.session.add(rule_model)
         db.session.commit()
