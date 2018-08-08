@@ -4,57 +4,44 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/datatables.min.css') }}">
 {% endblock %}
 {% block container %}
-  <a data-toggle="modal" data-target="#penyakitModal" href="{{ url_for('model.add') }}"
-     class="pull-right btn btn-primary">
+  <button data-toggle="modal" data-target="#penyakitModal"
+          class="pull-right btn btn-primary">
     <i class="now-ui-icons ui-1_simple-add"></i>
     Tambah Penyakit
-  </a>
+  </button>
   <h2>
     Data Penyakit
   </h2>
 
-  {% if models.__len__() <= 0 %}
+  {% if penyakits.__len__() <= 0 %}
     {% include 'partials/no-data.html' %}
   {% endif %}
 
-  {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-success" role="alert">
-          <div class="container">
-            <div class="alert-icon">
-              <i class="now-ui-icons ui-2_like"></i>
-            </div>
-            <strong>Berhasil!</strong> {{ message }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">
-                                <i class="now-ui-icons ui-1_simple-remove"></i>
-                            </span>
-            </button>
-          </div>
-        </div>
-      {% endfor %}
-    {% endif %}
-  {% endwith %}
+  {% include 'partials/flash.html' %}
 
-  {% if models %}
+  {% if penyakits %}
     <table class="table-inverse table table-striped">
       <thead class="thead-inverse">
       <tr>
-        <th>ID</th>
+        <th>No</th>
+        <th>Kode</th>
         <th>Penyakit</th>
         <th>?</th>
       </tr>
       </thead>
       <tbody>
-      {% for model in models %}
+      {% for penyakit in penyakits %}
         <tr>
-          <td>{{ model.kode_penyakit }}</td>
-          <td>{{ model.nama }}</td>
+          <td>{{ loop.index }}</td>
+          <td>{{ penyakit.kode_penyakit }}</td>
+          <td>{{ penyakit.nama }}</td>
           <td>
             <div class="btn-group" role="group" aria-label="Basic example">
-              <button class="btn btn-sm btn-primary"><i class="fa fa-pencil"></i></button>
-              <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
+              <button class="btn btn-sm btn-primary" penyakit-id="{{ penyakit.id }}" penyakit-name="{{ penyakit.nama }}"
+                      onclick="editModalDialog(this)"><i class="fa fa-pencil"></i></button>
+              <button class="btn btn-sm btn-danger" delete-url="{{ url_for('master.delete_penyakit', id=penyakit.id) }}"
+                      penyakit-name="{{ penyakit.nama }}" onclick="deleteConfirmation(this)"><i class="fa fa-trash"></i>
+              </button>
             </div>
           </td>
         </tr>
@@ -69,7 +56,7 @@
        aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
-        <form id="penyakitForm">
+        <form action="{{ url_for('master.penyakit') }}" method="POST">
           <div class="modal-header justify-content-center">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
               <i class="now-ui-icons ui-1_simple-remove"></i>
@@ -79,13 +66,42 @@
           <div class="modal-body">
             <div class="form-group">
               <label for="">Nama Penyakit</label>
-              <input type="text" name="name" class="form-control"
+              <input type="text" name="nama" class="form-control"
                      placeholder="Nama Penyakit">
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" data-dismiss="modal" onclick="storeData($('#penyakitForm'))"
-                    class="btn btn-info btn-simple">
+            <button type="submit" class="btn btn-info btn-simple">
+              Simpan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="editPenyakitModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form action="{{ url_for('master.penyakit') }}" method="POST">
+          <input type="hidden" name="method" value="PATCH">
+          <input type="hidden" name="id" id="id-penyakit-edit">
+          <div class="modal-header justify-content-center">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+              <i class="now-ui-icons ui-1_simple-remove"></i>
+            </button>
+            <h4 class="title title-up">Form Edit Penyakit</h4>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="">Nama Penyakit</label>
+              <input type="text" id="nama-penyakit-edit" name="nama" class="form-control"
+                     placeholder="Nama Penyakit">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-info btn-simple">
               Simpan
             </button>
           </div>
@@ -98,6 +114,32 @@
   {{ super() }}
   <script src="{{ url_for('static', filename='assets/js/datatables.min.js') }}"></script>
   <script>
-    $('table').DataTable()
+    $('table').DataTable();
+
+    function deleteConfirmation(el) {
+      var name = el.getAttribute("penyakit-name");
+      let deleteUrl = el.getAttribute("delete-url");
+      swal({
+        title: "Yakin?",
+        text: `Penyakit: ${name} akan dihapus. Setelah dihapus data tidak bisa dikembalikan lagi`,
+        icon: "warning",
+        buttons: "Ya. Saya yakin",
+        dangerMode: true,
+      })
+        .then((value) => {
+          if (value)
+            location.href = deleteUrl;
+        });
+    }
+
+    function editModalDialog(el) {
+      editPenyakitModal = $("#editPenyakitModal");
+      idPenyakitEdit = document.getElementById("id-penyakit-edit");
+      namePenyakitEdit = document.getElementById("nama-penyakit-edit");
+      idPenyakitEdit.value = el.getAttribute("penyakit-id");
+      namePenyakitEdit.value = el.getAttribute("penyakit-name");
+      editPenyakitModal.modal()
+    }
+
   </script>
 {% endblock %}

@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, request, jsonify, abort, make_resp
 
 from boot import db
 from models.gejala import Gejala, gejala_schema
-from models.penyakit import Penyakit, schema as penyakit_schema
+from models.penyakit import Penyakit, schemas as penyakit_schema
 from models.rule_model import RuleModel, rule_model_schema
 from views.auth import auth_group, login_required
 

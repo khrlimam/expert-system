@@ -6,7 +6,7 @@ from boot import db
 from calculator.probability_counter import ProbabilityCounter
 from models.gejala import Gejala
 from models.patients import Patients
-from models.penyakit import Penyakit, schema as penyakit_schema
+from models.penyakit import Penyakit, schemas as penyakit_schema
 from models.rule_model import RuleModel
 
 consult = Blueprint('consult', __name__, url_prefix='/consult')

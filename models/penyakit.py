@@ -23,4 +23,5 @@ class PenyakitSchema(ma.ModelSchema):
         model = Penyakit
 
 
-schema = PenyakitSchema(many=True)
+schemas = PenyakitSchema(many=True)
+schema = PenyakitSchema()

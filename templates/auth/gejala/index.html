@@ -4,56 +4,44 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/datatables.min.css') }}">
 {% endblock %}
 {% block container %}
-  <a href="#" data-toggle="modal" data-target="#gejalaModal" class="pull-right btn btn-primary">
+  <button data-toggle="modal" data-target="#gejalaModal"
+          class="pull-right btn btn-primary">
     <i class="now-ui-icons ui-1_simple-add"></i>
     Tambah Gejala
-  </a>
+  </button>
   <h2>
     Data Gejala
   </h2>
 
-  {% if models.__len__() <= 0 %}
+  {% if gejalas.__len__() <= 0 %}
     {% include 'partials/no-data.html' %}
   {% endif %}
 
-  {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-success" role="alert">
-          <div class="container">
-            <div class="alert-icon">
-              <i class="now-ui-icons ui-2_like"></i>
-            </div>
-            <strong>Berhasil!</strong> {{ message }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">
-                                <i class="now-ui-icons ui-1_simple-remove"></i>
-                            </span>
-            </button>
-          </div>
-        </div>
-      {% endfor %}
-    {% endif %}
-  {% endwith %}
+  {% include 'partials/flash.html' %}
 
-  {% if models %}
+  {% if gejalas %}
     <table class="table-inverse table table-striped">
       <thead class="thead-inverse">
       <tr>
-        <th>ID</th>
-        <th>Penyakit</th>
+        <th>No</th>
+        <th>Kode</th>
+        <th>Gejala</th>
         <th>?</th>
       </tr>
       </thead>
       <tbody>
-      {% for model in models %}
+      {% for gejala in gejalas %}
         <tr>
-          <td>{{ model.kode_gejala }}</td>
-          <td>{{ model.nama }}</td>
+          <td>{{ loop.index }}</td>
+          <td>{{ gejala.kode_gejala }}</td>
+          <td>{{ gejala.nama }}</td>
           <td>
             <div class="btn-group" role="group" aria-label="Basic example">
-              <button class="btn btn-sm btn-primary"><i class="fa fa-pencil"></i></button>
-              <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
+              <button class="btn btn-sm btn-primary" gejala-id="{{ gejala.id }}" gejala-name="{{ gejala.nama }}"
+                      onclick="editModalDialog(this)"><i class="fa fa-pencil"></i></button>
+              <button class="btn btn-sm btn-danger" delete-url="{{ url_for('master.delete_gejala', id=gejala.id) }}"
+                      gejala-name="{{ gejala.nama }}" onclick="deleteConfirmation(this)"><i class="fa fa-trash"></i>
+              </button>
             </div>
           </td>
         </tr>
@@ -63,12 +51,12 @@
     </table>
   {% endif %}
 
-  {#  modal#}
+  {#  modals#}
   <div class="modal fade" id="gejalaModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
        aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
-        <form id="gejalaForm">
+        <form action="{{ url_for('master.gejala') }}" method="POST">
           <div class="modal-header justify-content-center">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
               <i class="now-ui-icons ui-1_simple-remove"></i>
@@ -78,13 +66,42 @@
           <div class="modal-body">
             <div class="form-group">
               <label for="">Nama Gejala</label>
-              <input type="text" name="name" class="form-control"
+              <input type="text" name="nama" class="form-control"
                      placeholder="Nama Gejala">
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" data-dismiss="modal" onclick="storeData($('#gejalaForm'))"
-                    class="btn btn-info btn-simple">
+            <button type="submit" class="btn btn-info btn-simple">
+              Simpan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="editGejalaModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form action="{{ url_for('master.gejala') }}" method="POST">
+          <input type="hidden" name="method" value="PATCH">
+          <input type="hidden" name="id" id="id-gejala-edit">
+          <div class="modal-header justify-content-center">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+              <i class="now-ui-icons ui-1_simple-remove"></i>
+            </button>
+            <h4 class="title title-up">Form Edit Gejala</h4>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="">Nama Gejala</label>
+              <input type="text" id="nama-gejala-edit" name="nama" class="form-control"
+                     placeholder="Nama Gejala">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-info btn-simple">
               Simpan
             </button>
           </div>
@@ -97,6 +114,32 @@
   {{ super() }}
   <script src="{{ url_for('static', filename='assets/js/datatables.min.js') }}"></script>
   <script>
-    $('table').DataTable()
+    $('table').DataTable();
+
+    function deleteConfirmation(el) {
+      var name = el.getAttribute("gejala-name");
+      let deleteUrl = el.getAttribute("delete-url");
+      swal({
+        title: "Yakin?",
+        text: `Gejala: ${name} akan dihapus. Setelah dihapus data tidak bisa dikembalikan lagi`,
+        icon: "warning",
+        buttons: "Ya. Saya yakin",
+        dangerMode: true,
+      })
+        .then((value) => {
+          if (value)
+            location.href = deleteUrl;
+        });
+    }
+
+    function editModalDialog(el) {
+      editGejalaModal = $("#editGejalaModal");
+      idGejalaEdit = document.getElementById("id-gejala-edit");
+      nameGejalaEdit = document.getElementById("nama-gejala-edit");
+      idGejalaEdit.value = el.getAttribute("gejala-id");
+      nameGejalaEdit.value = el.getAttribute("gejala-name");
+      editGejalaModal.modal()
+    }
+
   </script>
 {% endblock %}
