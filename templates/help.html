@@ -1,0 +1,71 @@
+{% extends 'templatewithnavheader.html' %}
+{% block css %}
+  {{ super() }}
+  <style>
+    .content-description {
+      width: 100%;
+      padding: 10px;
+      text-align: center;
+    }
+  </style>
+{% endblock %}
+{% block applogo %}
+  <a class="navbar-brand" href="{{ url_for('base.index') }}">{{ config.APP_NAME }}</a>
+{% endblock %}
+{% block container %}
+  <div class="container">
+    <h1>Bantuan</h1>
+    <div class="row">
+      <div class="col-sm-12">
+        <p>Jika Anda mengalami kesulitan dalam menggunakan aplikasi ini berikut adalah penjelasan langkah-langkah cara
+          menggunakan aplikasi ini.</p>
+        <h4>Halaman Depan</h4>
+        <p>Pada halaman ini Anda dipersilahkan untuk memilih model konsultasi yang diinginkan</p>
+        <img class="rounded img-raised" src="{{ url_for('static', filename='bantuan/depan.png') }}" alt="Halaman depan">
+        <label class="content-description"><b>Gambar 1</b> halaman depan</label>
+        <p>Pilihlah model konsultasi sesuai keluhan Anda. Contoh, jika Anda memiliki keluhan mengenai penyakit THT, maka
+          silahkan pilih model THT</p>
+        <h4>Halaman Konsultasi</h4>
+        <p>Pada halaman konsultasi, Anda akan melalui 4 tahapan pengisian data, yaitu:</p>
+        <ol>
+          <li>Data pribadi</li>
+          <li>Pilih gejala</li>
+          <li>Pilih intensitas</li>
+          <li>Hasil diagnosa</li>
+        </ol>
+        <h4>1. Data Pribadi</h4>
+        <p>Pada tahap ini, Anda akan diminta untuk mengisi data diri Anda. Diharapkan data yang dimasukkan adalah data
+          yang valid.</p>
+        <img src="{{ url_for('static', filename='bantuan/profile.png') }}" alt="profile" class="rounded img-raised">
+        <label for="" class="content-description"><b>Gambar 2</b> halaman pengisian data pribadi</label>
+        <p>Setelah semua data telah diisi, silahkan klik tombol lanjutkan untuk menuju ke tahap berikutnya.</p>
+        <h4>2. Pilih Gejala</h4>
+        <p>Pada tahap ini, Anda akan diminta untuk memilih keluhan gejala-gejala apa saja yang Anda alami. Pilihlah
+          gejala-gejala yang sesuai dengan keluhan Anda. Ini akan menjadi patokan diagnosa sistem mengenai penyakit
+          Anda</p>
+        <img src="{{ url_for('static', filename='bantuan/gejala.png') }}" alt="pilih gejala" class="rounded img-raised">
+        <label for="" class="content-description"><b>Gambar 3</b> Halaman pilih gejala</label>
+        <p>Setelah Anda mengisi gejala-gejala yang Anda alami, kemudian klik selanjut untuk berlanjut ke tahap
+          berikutnya.</p>
+        <h4>3. Pilih Intensitas</h4>
+        <p>Pada halaman ini Anda diminta untuk memberi intensitas terhadap setiap gejala yang Anda alami.</p>
+        <img src="{{ url_for('static', filename='bantuan/intensitas.png') }}" alt="pilih intensitas"
+             class="rounded img-raised">
+        <label for="" class="content-description"><b>Gambar 4</b> Pilih intensitas masing-masing gejala yang
+          dialami</label>
+        <p>Setalah Anda memilih intensitas untuk setiap gejala, kemudian klik tombok berikutnya untuk melihat laporan
+          diagnosa yang Anda alami</p>
+        <h4>4. Hasil Diagnosa</h4>
+        <p>Pada halam ini anda akan melihat laporan diagnosa penyakit anda sesuai gejala yang anda pilih</p>
+        <img src="{{ url_for('static', filename='bantuan/report.png') }}" alt="laporan diagnosa"
+             class="rounded img-raised">
+        <label for="" class="content-description"><b>Gambar 5</b> Laporan diagnosa penyakit</label>
+        <p>Untuk mengakhir sesi konsultasi anda, silahkan klik tombol selesai konsultasi pada bagian pojok kanan atas.
+          Sesuai gambar dibawah</p>
+        <img src="{{ url_for('static', filename='bantuan/selesai.png') }}" alt="Selesai konsultasi"
+             class="rounded img-raised">
+        <label for="" class="content-description"><b>Gambar 6</b> Tombol selesai konsultasi</label>
+      </div>
+    </div>
+  </div>
+{% endblock %}

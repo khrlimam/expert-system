@@ -28,7 +28,7 @@ def login():
 
 @base.route('/help')
 def help():
-    return request.url
+    return render_template('help.html')
 
 
 def process_login(*args, **kwargs):
