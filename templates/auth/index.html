@@ -50,11 +50,11 @@
           <td>
             <ol>
               {% for gejala in patient.named_intensity_gejala %}
-                <li><b>{{ gejala[0] }}</b> intensitas {{ gejala[1] }}</li>
+                <li><b>{{ gejala[0] }}</b></li>
               {% endfor %}
             </ol>
           </td>
-          <td>{{ patient.most_possible_penyakit.nama }} {{ patient.most_possible_penyakit_category }}</td>
+          <td>{{ patient.most_possible_penyakit.nama }}</td>
         </tr>
       {% endfor %}
 
