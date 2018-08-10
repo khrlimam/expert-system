@@ -31,25 +31,26 @@ def index():
     result = {}
 
     if step == 'laporan':
-        try:
-            report_ = report()
-            penyakit_query = Penyakit.query
-            conclusion = report_.conclusions()
-            probability = report_.probability()
-            map_probability_to_array = [(list(x.keys())[0], list(x.values())[0]) for x in probability]
-            penyakits_with_possibility = list(conclusion[0].keys())[0]
-            kategori = list(conclusion[0].values())[0][1]
-            penyakit = penyakit_query.get(penyakits_with_possibility)
-            all_penyakit = penyakit_schema.dumps(Penyakit.query.all()).data
-            profile = session['profile']
-            intensitas_copy = session['intensitas'].copy()
-            intensitas_copy.pop('step')
-            gejala_user = [(Gejala.query.get(x).nama, intensitas_copy[x]) for x in intensitas_copy.keys()]
-            result = {'penyakit': penyakit.nama, 'kategori': kategori, 'probability': probability,
-                      'penyakits': all_penyakit,
-                      'pr': map_probability_to_array, 'profile': profile, 'gejala_user': gejala_user}
-        except Exception:
-            result = {}
+        report_ = report()
+        penyakit_query = Penyakit.query
+        conclusions = report_.conclusions()
+        probability = report_.probability()
+        map_probability_to_array = [(list(x.keys())[0], list(x.values())[0]) for x in probability]
+        highest_possibility_penyakit_id = list(conclusions[0].keys())[0]
+        highest_possibility_penyakit_kategori = list(conclusions[0].values())[0][1]
+        penyakit = penyakit_query.get(highest_possibility_penyakit_id)
+        all_penyakit = penyakit_schema.dumps(Penyakit.query.all()).data
+        profile = session['profile']
+        intensitas_copy = session['intensitas'].copy()
+        intensitas_copy.pop('step', None)
+        gejala_user = [(Gejala.query.get(x).nama, intensitas_copy[x]) for x in intensitas_copy.keys()]
+        result = {'penyakit': penyakit.nama,
+                  'kategori': highest_possibility_penyakit_kategori,
+                  'probability': probability,
+                  'penyakits': all_penyakit,
+                  'pr': map_probability_to_array,
+                  'profile': profile,
+                  'gejala_user': gejala_user}
 
     return render_template('guest/consult/consult.html', step=step, model=model, data=step_data, gejala=gejala,
                            gejala_s=gejala_s, result=result)
@@ -76,7 +77,7 @@ def done():
     data = session.get('profile')
     model_id = session.get('model-id')
     intensity_ = session.get('intensitas')
-    intensity_.pop('step')
+    intensity_.pop('step', None)
     data.update({'history': {'model': model_id, 'intensity': intensity_}})
     db.session.add(Patients(data))
     db.session.commit()
@@ -88,6 +89,8 @@ def done():
 
 def report():
     model_by_rule = RuleModel.query.get_or_404(session['model-id'])
+    gejalas = session.get('gejala')
+    session['intensitas'] = {x: 'mean' for x in gejalas}
     gejala_intensity = session.get('intensitas')
     selected_model = model_by_rule.model_
     return ProbabilityCounter(gejala_intensity, selected_model)
@@ -95,6 +98,5 @@ def report():
 
 steps = {
     'profile': 'gejala',
-    'gejala': 'intensitas',
-    'intensitas': 'laporan'
+    'gejala': 'laporan'
 }

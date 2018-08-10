@@ -1,10 +1,9 @@
-from calculator import isbetween
-from models.intensity import intensity, category
+from models.intensity import intensity
 
 
 class ProbabilityCounter:
     def __init__(self, intensitas_gejala, model):
-        self.gejala_weighted = {x: intensity.get(intensitas_gejala.get(x), 0) for x in intensitas_gejala.keys()}
+        self.gejala_weighted = {str(x): intensity.get(intensitas_gejala.get(x), 0) for x in intensitas_gejala.keys()}
         self.set_gejala = set(self.gejala_weighted.keys())
         self.model = model
 
@@ -23,8 +22,5 @@ class ProbabilityCounter:
         return sorted(self.probability(), key=lambda item: -list(item.values())[0])
 
     def conclusions(self):
-        return [{list(y.keys())[0]:
-                     (list(y.values())[0],
-                      list(filter(lambda x:
-                                  isbetween(list(y.values())[0], x[1]),
-                                  category))[0][0])} for y in self.sort_probability_desc()]
+        return [{list(y.keys())[0]: (list(y.values())[0], 'Mean')
+                 } for y in self.sort_probability_desc()]

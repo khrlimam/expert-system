@@ -18,12 +18,6 @@
         <i class="fa fa-stethoscope"></i>
       </a>
     </li>
-    <li class="nav-item" data-toggle="tooltip" data-placement="bottom" title="Intensitas setiap gejala">
-      <a class="nav-link {{ ('', 'active')[step == 'intensitas'] }}"
-         href="{{ url_for('consult.index') }}?step=intensitas">
-        <i class="fa fa-thermometer-1"></i>
-      </a>
-    </li>
     <li class="nav-item" data-toggle="tooltip" data-placement="bottom" title="Laporan hasil diagnosa">
       <a class="nav-link {{ ('', 'active')[step == 'laporan'] }}"
          href="{{ url_for('consult.index') }}?step=laporan">
@@ -37,9 +31,6 @@
   {% endif %}
   {% if step == 'gejala' %}
     {% include 'guest/consult/pilih-gejala.html' %}
-  {% endif %}
-  {% if step == 'intensitas' %}
-    {% include 'guest/consult/pilih-intensitas.html' %}
   {% endif %}
   {% if step == 'laporan' %}
     {% include 'guest/consult/report.html' %}
@@ -67,7 +58,7 @@
         data: {
           labels: labels,
           datasets: [{
-            label: '# Nilai probabilitas penyakit',
+            label: '# Persentase keyakinan',
             data: data,
             backgroundColor: [
               'rgba(255, 99, 132, 0.2)',
@@ -95,6 +86,19 @@
                 beginAtZero: true
               }
             }]
+          },
+          tooltips: {
+            callbacks: {
+              label: function (tooltipItem, data) {
+                var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+                if (label) {
+                  label += ': ';
+                }
+                label += Math.round(tooltipItem.yLabel) + "%";
+                return label;
+              }
+            }
           }
         }
       });
