@@ -1,4 +1,4 @@
-def boot(app):
+def load(app):
     from views.auth.patient import patient
     from views.guest.consult import consult
     from views import base
